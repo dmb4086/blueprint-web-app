@@ -1,0 +1,47 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]: Blueprint
+    - navigation [ref=e11]:
+      - link "Explore" [ref=e12] [cursor=pointer]:
+        - /url: "#"
+      - link "Sites" [ref=e13] [cursor=pointer]:
+        - /url: "#"
+      - link "Map" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e15]:
+      - button [ref=e16]:
+        - img [ref=e17]
+      - generic [ref=e20] [cursor=pointer]: JS
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Select Location" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Choose a country to explore
+        - generic [ref=e26]:
+          - img
+          - button "United States" [ref=e142]:
+            - img [ref=e143]
+            - generic [ref=e35]: United States
+            - img [ref=e36]
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - region "Map" [ref=e40]
+          - img "Map marker" [ref=e148]
+        - generic [ref=e153]:
+          - generic [ref=e155]:
+            - button "Zoom in" [ref=e156]
+            - button "Zoom out" [ref=e157]
+          - generic:
+            - generic:
+              - link "Mapbox homepage":
+                - /url: https://www.mapbox.com/
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e160]: Address
+          - textbox "Enter an address..." [ref=e161]
+        - link "Open in Google Maps" [ref=e162] [cursor=pointer]:
+          - /url: https://www.google.com/maps/search/?api=1&query=37.0902,-95.7129
+          - img [ref=e163]
+          - text: Open in Google Maps

@@ -1,0 +1,26 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]: Blueprint
+    - navigation [ref=e11]:
+      - link "Explore" [ref=e12] [cursor=pointer]:
+        - /url: "#"
+      - link "Sites" [ref=e13] [cursor=pointer]:
+        - /url: "#"
+      - link "Map" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e15]:
+      - button [ref=e16]:
+        - img [ref=e17]
+      - generic [ref=e20] [cursor=pointer]: JS
+  - main [ref=e21]:
+    - generic [ref=e23]:
+      - heading "Select Location" [level=1] [ref=e24]
+      - paragraph [ref=e25]: Choose a country to explore
+      - generic [ref=e26]:
+        - img
+        - button "India" [ref=e27]:
+          - img [ref=e28]
+          - generic [ref=e35]: India
+          - img [ref=e36]

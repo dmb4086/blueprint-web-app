@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-green: #58CC02;
+  --color-hover-green: #46A302;
+  --color-electric-cyan: #1CB0F6;
+  --color-warm-orange: #FF9500;
+  --color-link-blue: #007AFF;
+  --color-error-red: #FF3B30;
+  --color-success-green: #34C759;
+  --color-dark-charcoal: #1C1C1E;
+  --color-medium-gray: #8A8A8E;
+  --color-light-gray: #C7C7CC;
+  --color-border-gray: #E5E5EA;
+  --color-surface: #F2F2F7;
+  --color-surface-dim: #F2F2F7;
+  --color-surface-bright: #ffffff;
+  --color-surface-container: #ffffff;
+  --color-on-surface: #1C1C1E;
+  --color-on-background: #1C1C1E;
+  --color-background: #F2F2F7;
+
+  --font-family-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-duo: 0 4px 0 0 #46A302;
+  --shadow-duo-hover: 0 6px 0 0 #46A302;
+  --shadow-duo-active: 0 0 0 0 #46A302;
+}
+
+body {
+  background: #F2F2F7;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dot-bg {
+  background-image: radial-gradient(#C7C7CC 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mapbox overrides for clean look */
+.mapboxgl-ctrl-attrib {
+  font-size: 9px !important;
+  opacity: 0.5;
+}
+.mapboxgl-ctrl-attrib a {
+  color: #8A8A8E !important;
+}
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  opacity: 0.6;
+}
+.mapboxgl-ctrl-group {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  border: 1px solid #E5E5EA !important;
+  overflow: hidden;
+}
+.mapboxgl-ctrl-group button {
+  width: 32px !important;
+  height: 32px !important;
+  background: white !important;
+  color: #1C1C1E !important;
+}
+.mapboxgl-ctrl-group button:hover {
+  background: #F2F2F7 !important;
+}
