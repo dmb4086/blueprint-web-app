@@ -1,0 +1,24 @@
+[      76ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5176/node_modules/.vite/deps/react-dom_client.js?v=192f2862:14337
+[     428ms] [ERROR] Error: The layer 'background' does not exist in the map's style.
+    at Po._checkLayer (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:35133:40)
+    at Po.setPaintProperty (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:35888:21)
+    at Map.setPaintProperty (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:46661:47)
+    at set (http://localhost:5176/src/App.tsx?t=1777316531817:161:29)
+    at applyApplePalette (http://localhost:5176/src/App.tsx?t=1777316531817:169:2)
+    at onLoad (http://localhost:5176/src/App.tsx?t=1777316531817:902:8)
+    at Mapbox._onEvent (http://localhost:5176/node_modules/.vite/deps/react-map-gl_mapbox.js?v=b7d6a994:379:12)
+    at Map.fire (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:1016:28)
+    at Mapbox._fireEvent (http://localhost:5176/node_modules/.vite/deps/react-map-gl_mapbox.js?v=b7d6a994:647:13)
+    at Map._render (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:46927:116) @ http://localhost:5176/@vite/client:509
+[  665828ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5176/node_modules/.vite/deps/react-dom_client.js?v=192f2862:14337
+[  666213ms] [ERROR] Error: The layer 'background' does not exist in the map's style.
+    at Po._checkLayer (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:35133:40)
+    at Po.setPaintProperty (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:35888:21)
+    at Map.setPaintProperty (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:46661:47)
+    at set (http://localhost:5176/src/App.tsx?t=1777316531817:161:29)
+    at applyApplePalette (http://localhost:5176/src/App.tsx?t=1777316531817:169:2)
+    at onLoad (http://localhost:5176/src/App.tsx?t=1777316531817:902:8)
+    at Mapbox._onEvent (http://localhost:5176/node_modules/.vite/deps/react-map-gl_mapbox.js?v=b7d6a994:379:12)
+    at Map.fire (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:1016:28)
+    at Mapbox._fireEvent (http://localhost:5176/node_modules/.vite/deps/react-map-gl_mapbox.js?v=b7d6a994:647:13)
+    at Map._render (http://localhost:5176/node_modules/.vite/deps/mapbox-gl-BFeupCwg.js?v=c07da872:46927:116) @ http://localhost:5176/@vite/client:509

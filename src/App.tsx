@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Map, Marker, NavigationControl } from 'react-map-gl/mapbox'
-import { Settings, Search, MapPin, ExternalLink, Loader2 } from 'lucide-react'
+import { Settings, MapPin, ExternalLink, Loader2, Search, Check, Upload } from 'lucide-react'
+import { Dropdown, DropdownItem, DropdownChevron } from './components/Dropdown'
 import type { MapRef } from 'react-map-gl/mapbox'
 import {
   IndiaFlag, USFlag, UKFlag, SpainFlag, FranceFlag,
@@ -35,75 +36,77 @@ const countries: Country[] = [
 ]
 
 function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
-  // Match /@lat,lng,z/ or /@lat,lng/ or ?q=lat,lng
   const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
   if (atMatch) return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) }
-
   const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/)
   if (qMatch) return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) }
-
   return null
 }
 
 function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
+  const [filterQuery, setFilterQuery] = useState('')
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [address, setAddress] = useState('')
   const [state, setState] = useState('')
   const [gmapsLink, setGmapsLink] = useState('')
   const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [mapLoaded, setMapLoaded] = useState(false)
   const mapRef = useRef<MapRef>(null)
   const spinRef = useRef<number>(0)
   const isSpinning = useRef(true)
 
   const selected = countries.find((c) => c.id === selectedId)
 
-  // Spin the globe
   const spinGlobe = useCallback(() => {
     if (!mapRef.current || !isSpinning.current) return
     const map = mapRef.current.getMap()
     const center = map.getCenter()
-    map.easeTo({
-      center: [center.lng + 0.3, 20],
-      duration: 100,
-      easing: (n: number) => n,
-    })
+    map.easeTo({ center: [center.lng + 0.3, 20], duration: 100, easing: (n: number) => n })
     spinRef.current = requestAnimationFrame(spinGlobe)
   }, [])
 
   useEffect(() => {
-    if (!selectedId && mapRef.current) {
+    if (!selectedId && mapLoaded) {
       isSpinning.current = true
       spinRef.current = requestAnimationFrame(spinGlobe)
     }
-    return () => {
-      if (spinRef.current) cancelAnimationFrame(spinRef.current)
-    }
-  }, [selectedId, spinGlobe])
+    return () => { if (spinRef.current) cancelAnimationFrame(spinRef.current) }
+  }, [selectedId, spinGlobe, mapLoaded])
+
+  // Hero globe = label-free; once a country is picked, flip Standard's label
+  // config props back on for the close-up view.
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return
+    const map = mapRef.current.getMap()
+    const show = !!selectedId
+    try { map.setConfigProperty('basemap', 'showPlaceLabels', show) } catch { /* */ }
+    try { map.setConfigProperty('basemap', 'showRoadLabels', show) } catch { /* */ }
+    try { map.setConfigProperty('basemap', 'showPointOfInterestLabels', false) } catch { /* */ }
+    try { map.setConfigProperty('basemap', 'showTransitLabels', false) } catch { /* */ }
+    try { map.setConfigProperty('basemap', 'show3dObjects', show) } catch { /* */ }
+  }, [selectedId, mapLoaded])
+
+  // Clear search filter when dropdown closes
+  useEffect(() => {
+    if (!open) setFilterQuery('')
+  }, [open])
 
   const flyTo = (lat: number, lng: number, zoom: number) => {
-    mapRef.current?.flyTo({
-      center: [lng, lat],
-      zoom,
-      duration: 2500,
-      essential: true,
-    })
+    mapRef.current?.flyTo({ center: [lng, lat], zoom, duration: 2500, essential: true })
     setMarkerPos({ lat, lng })
   }
 
   const handleSelectCountry = (id: string) => {
     const country = countries.find((c) => c.id === id)
     if (!country) return
-
     setSelectedId(id)
     setOpen(false)
     isSpinning.current = false
     if (spinRef.current) cancelAnimationFrame(spinRef.current)
-
-    setTimeout(() => {
-      flyTo(country.lat, country.lng, country.zoom)
-    }, 100)
+    setTimeout(() => flyTo(country.lat, country.lng, country.zoom), 100)
   }
 
   const handleSearchAddress = async () => {
@@ -119,26 +122,53 @@ function App() {
         const [lng, lat] = data.features[0].center
         flyTo(lat, lng, 12)
       }
-    } catch (e) {
-      console.error('Geocoding failed', e)
-    }
+    } catch (e) { console.error('Geocoding failed', e) }
     setLoading(false)
   }
 
   const handleGmapsLink = () => {
     const coords = parseGoogleMapsUrl(gmapsLink)
-    if (coords) {
-      flyTo(coords.lat, coords.lng, 15)
-    }
+    if (coords) flyTo(coords.lat, coords.lng, 15)
   }
 
   const googleMapsUrl = selected
     ? `https://www.google.com/maps/search/?api=1&query=${markerPos?.lat ?? selected.lat},${markerPos?.lng ?? selected.lng}`
     : '#'
 
+  const dropdownTrigger = (
+    <>
+      {selected ? <selected.Flag size={24} /> : <GlobeIcon />}
+      <span className={`flex-grow text-[17px] font-bold ${selected ? 'text-dark-charcoal' : 'text-light-gray'}`}>
+        {selected ? selected.name : 'Select your country'}
+      </span>
+      <DropdownChevron open={open} />
+    </>
+  )
+
+  const filtered = countries.filter((c) =>
+    c.name.toLowerCase().includes(filterQuery.toLowerCase())
+  )
+
+  const dropdownItems = filtered.map((country, index) => {
+    const Flag = country.Flag
+    const isActive = country.id === selectedId
+    return (
+      <DropdownItem
+        key={country.id}
+        active={isActive}
+        onClick={() => handleSelectCountry(country.id)}
+        style={{ '--delay': `${index * 12}ms` } as React.CSSProperties}
+      >
+        <Flag size={24} />
+        <span className="text-[15px] font-bold">{country.name}</span>
+        {isActive && <Check size={20} strokeWidth={3} className="ml-auto" />}
+      </DropdownItem>
+    )
+  })
+
   return (
-    <div className="min-h-dvh bg-surface text-dark-charcoal font-sans antialiased">
-      {/* Nav Bar */}
+    <div className="min-h-dvh bg-white text-dark-charcoal font-sans antialiased">
+      {/* Nav */}
       <header className="glass-panel flex justify-between items-center w-full px-6 py-3 h-[72px] border-b border-border-gray/50 sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-brand-green rounded-xl flex items-center justify-center text-white shadow-sm">
@@ -159,143 +189,196 @@ function App() {
         </div>
       </header>
 
-      {/* Main */}
-      <main className="max-w-[1400px] mx-auto px-5 md:px-8 py-6 md:py-10">
-        {/* Dropdown */}
-        <div className="max-w-md mb-6 relative z-20">
-          <h1 className="text-[28px] md:text-[32px] font-extrabold text-dark-charcoal tracking-tight mb-1">Select Location</h1>
-          <p className="text-[15px] font-medium text-medium-gray mb-4">Choose a country to begin</p>
+      <main className="max-w-[1400px] mx-auto px-5 md:px-8 pt-6 md:pt-10 pb-8">
 
-          <div className="relative">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-medium-gray z-10" />
-            <button
-              onClick={() => setOpen(!open)}
-              className="w-full flex items-center gap-3 pl-12 pr-5 h-[52px] bg-white rounded-2xl border-none shadow-soft text-left hover:shadow-glass transition-all"
-            >
-              {selected ? <selected.Flag size={24} /> : <GlobeIcon />}
-              <span className={`flex-grow text-[17px] font-bold ${selected ? 'text-dark-charcoal' : 'text-light-gray'}`}>
-                {selected ? selected.name : 'Choose a country'}
-              </span>
-              <svg className={`w-5 h-5 text-medium-gray transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {open && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-glass overflow-hidden z-20 max-h-[320px] overflow-y-auto border border-border-gray/50">
-                  {countries.map((country) => {
-                    const Flag = country.Flag
-                    const isActive = country.id === selectedId
-                    return (
-                      <button
-                        key={country.id}
-                        onClick={() => handleSelectCountry(country.id)}
-                        className={`w-full flex items-center gap-3 px-5 h-[52px] transition-colors ${
-                          isActive ? 'bg-brand-green/10 text-brand-green' : 'text-dark-charcoal hover:bg-surface'
-                        }`}
-                      >
-                        <Flag size={24} />
-                        <span className="text-[15px] font-bold">{country.name}</span>
-                        {isActive && (
-                          <svg className="w-5 h-5 text-brand-green ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </button>
-                    )
-                  })}
+        {/* ── HERO: centered heading + picker, collapses on pick ── */}
+        <div
+          style={{
+            maxHeight: selectedId ? 0 : 260,
+            opacity: selectedId ? 0 : 1,
+            marginBottom: selectedId ? 0 : 24,
+            // Only clip overflow when collapsing — keeping it visible lets the dropdown list extend below
+            overflow: selectedId ? 'hidden' : 'visible',
+            pointerEvents: selectedId ? 'none' : 'auto',
+            position: 'relative',
+            zIndex: 20,
+            transition: 'max-height 0.45s ease-out, opacity 0.3s ease-out, margin-bottom 0.45s ease-out',
+          }}
+        >
+          <div className="text-center mb-5">
+            <h1 className="text-[32px] md:text-[42px] font-extrabold text-dark-charcoal tracking-tight mb-2">
+              Where is your plot?
+            </h1>
+            <p className="text-[16px] font-medium text-medium-gray">
+              Blueprint maps what's around your land — roads, schools, and more.
+            </p>
+          </div>
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3">
+            <Dropdown open={open} onOpenChange={setOpen} trigger={dropdownTrigger} className="flex-1 min-w-0">
+              <div className="sticky top-0 bg-white z-10 px-4 pt-3 pb-2 border-b border-border-gray/30">
+                <div className="flex items-center gap-2 h-9 px-3 bg-surface-dim rounded-lg">
+                  <Search size={14} className="text-medium-gray flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={filterQuery}
+                    onChange={(e) => setFilterQuery(e.target.value)}
+                    placeholder="Search countries..."
+                    className="flex-1 bg-transparent text-sm font-semibold text-dark-charcoal placeholder:text-light-gray focus:outline-none min-w-0"
+                    autoFocus={open}
+                  />
                 </div>
-              </>
-            )}
+              </div>
+              {dropdownItems}
+            </Dropdown>
+            <div className="flex-1 min-w-0 flex items-center gap-3 pl-4 pr-4 h-[52px] rounded-xl border border-border-gray bg-white focus-within:ring-2 focus-within:ring-brand-green/30 focus-within:border-brand-green transition-all">
+              <MapPin size={18} className="text-medium-gray flex-shrink-0" />
+              <input
+                type="text"
+                value={gmapsLink}
+                onChange={(e) => setGmapsLink(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleGmapsLink()}
+                placeholder="Paste Google Maps link..."
+                className="flex-1 min-w-0 bg-transparent text-[15px] font-bold text-dark-charcoal placeholder:text-light-gray focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Layout: inputs left, map right on desktop; stacked on mobile */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Left: Inputs */}
-          <div className="w-full md:w-[400px] flex flex-col gap-4 order-2 md:order-1">
-            {selected && (
-              <>
-                <div className="bg-white rounded-2xl p-5 shadow-soft border border-border-gray/30">
-                  <label className="text-[13px] font-bold text-medium-gray uppercase tracking-wider mb-2 block">Address</label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearchAddress()}
-                    placeholder="Street address..."
-                    className="w-full h-[48px] px-4 rounded-xl border border-border-gray bg-white text-[15px] font-bold text-dark-charcoal placeholder:text-light-gray focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all mb-3"
-                  />
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearchAddress()}
-                    placeholder="State / Province..."
-                    className="w-full h-[48px] px-4 rounded-xl border border-border-gray bg-white text-[15px] font-bold text-dark-charcoal placeholder:text-light-gray focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all"
-                  />
-                  <button
-                    onClick={handleSearchAddress}
-                    disabled={loading}
-                    className="mt-3 w-full h-[48px] bg-brand-green text-white font-bold text-[15px] rounded-xl shadow-duo hover:-translate-y-0.5 hover:shadow-duo-hover active:translate-y-1 active:shadow-duo-active transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-                  >
-                    {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                    Search on Map
-                  </button>
-                </div>
+        {/* ── CONTENT ROW: left panel slides in, map always present ── */}
+        <div className="flex flex-col md:flex-row gap-6 md:items-stretch">
 
-                <div className="bg-white rounded-2xl p-5 shadow-soft border border-border-gray/30">
-                  <label className="text-[13px] font-bold text-medium-gray uppercase tracking-wider mb-2 block">Or paste a Google Maps link</label>
-                  <input
-                    type="text"
-                    value={gmapsLink}
-                    onChange={(e) => setGmapsLink(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleGmapsLink()}
-                    placeholder="https://maps.google.com/..."
-                    className="w-full h-[48px] px-4 rounded-xl border border-border-gray bg-white text-[15px] font-bold text-dark-charcoal placeholder:text-light-gray focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all mb-3"
-                  />
-                  <button
-                    onClick={handleGmapsLink}
-                    className="w-full h-[48px] bg-surface-dim text-dark-charcoal font-bold text-[15px] rounded-xl border border-border-gray hover:bg-white hover:shadow-soft transition-all flex items-center justify-center gap-2"
-                  >
-                    <MapPin size={18} />
-                    Go to Location
-                  </button>
-                </div>
+          {/* Left panel — slides in from 0 → 400px */}
+          <div
+            className="flex-shrink-0 overflow-hidden order-2 md:order-1"
+            style={{
+              maxWidth: selectedId ? 400 : 0,
+              opacity: selectedId ? 1 : 0,
+              pointerEvents: selectedId ? 'auto' : 'none',
+              transition: 'max-width 0.5s ease-out, opacity 0.4s ease-out',
+            }}
+          >
+            {/* Inner div holds content at full width; outer clips it */}
+            <div className="w-[400px] flex flex-col gap-3">
 
-                <a
-                  href={googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full h-[56px] bg-brand-green text-white font-bold text-[17px] rounded-2xl shadow-duo hover:-translate-y-0.5 hover:shadow-duo-hover active:translate-y-1 active:shadow-duo-active transition-all"
-                >
-                  <ExternalLink size={20} />
-                  Open in Google Maps
-                </a>
-              </>
-            )}
+              <div className="relative z-20">
+                <h1 className="text-[24px] font-extrabold text-dark-charcoal tracking-tight mb-1 leading-tight">Where is your plot?</h1>
+                <p className="text-[14px] font-medium text-medium-gray mb-4">Blueprint maps what's around your land.</p>
+                <Dropdown open={open} onOpenChange={setOpen} trigger={dropdownTrigger}>
+                  <div className="sticky top-0 bg-white z-10 px-4 pt-3 pb-2 border-b border-border-gray/30">
+                    <div className="flex items-center gap-2 h-9 px-3 bg-surface-dim rounded-lg">
+                      <Search size={14} className="text-medium-gray flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={filterQuery}
+                        onChange={(e) => setFilterQuery(e.target.value)}
+                        placeholder="Search countries..."
+                        className="flex-1 bg-transparent text-sm font-semibold text-dark-charcoal placeholder:text-light-gray focus:outline-none min-w-0"
+                        autoFocus={open}
+                      />
+                    </div>
+                  </div>
+                  {dropdownItems}
+                </Dropdown>
+              </div>
+
+              {selected && (
+                <>
+                  <div className="bg-white rounded-2xl p-5 shadow-soft border border-border-gray/30">
+                    <label className="text-[13px] font-bold text-medium-gray uppercase tracking-wider mb-3 block">Upload your file</label>
+                    <label
+                      className="flex flex-col items-center justify-center gap-2 h-[160px] rounded-xl border-2 border-dashed border-border-gray bg-surface-dim/30 cursor-pointer hover:bg-surface-dim/60 hover:border-brand-green/40 transition-all"
+                    >
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] ?? null
+                          setUploadedFile(file)
+                        }}
+                      />
+                      {uploadedFile ? (
+                        <>
+                          <div className="w-10 h-10 bg-brand-green/10 rounded-full flex items-center justify-center text-brand-green">
+                            <Check size={20} strokeWidth={2.5} />
+                          </div>
+                          <span className="text-sm font-bold text-dark-charcoal px-4 text-center truncate max-w-full">{uploadedFile.name}</span>
+                          <span className="text-xs font-semibold text-medium-gray">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-medium-gray shadow-sm">
+                            <Upload size={20} />
+                          </div>
+                          <span className="text-sm font-bold text-dark-charcoal">Drop a file here, or click to browse</span>
+                          <span className="text-xs font-semibold text-medium-gray">PDF, JPG, PNG up to 10MB</span>
+                        </>
+                      )}
+                    </label>
+                  </div>
+
+                  <button
+                    className="flex items-center justify-center gap-2 w-full h-[56px] bg-brand-green text-white font-bold text-[17px] rounded-2xl shadow-duo hover:-translate-y-0.5 hover:shadow-duo-hover active:translate-y-1 active:shadow-duo-active transition-all"
+                  >
+                    <Search size={20} />
+                    Analyze
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Right: Map */}
-          <div className="flex-grow order-1 md:order-2 rounded-[2rem] overflow-hidden shadow-glass border border-border-gray/50 bg-[#F2F2F7]" style={{ height: '60vh', minHeight: '400px' }}>
+          {/* Map — hero: tall canvas; selected: stretches to match left-panel height
+              In hero mode the map sheds its rounded card; the page bleeds the same
+              atmosphere blue so the globe's glow has nowhere to butt against an edge. */}
+          <div
+            className={`flex-grow order-1 md:order-2 self-stretch overflow-hidden transition-all duration-500 ${
+              selectedId ? 'rounded-[2rem] map-card' : 'map-bleed'
+            }`}
+            style={{
+              height: selectedId ? 'auto' : 'calc(100dvh - 72px - 14rem)',
+              minHeight: selectedId ? 580 : 400,
+              transition: 'min-height 0.5s ease-out, border-radius 0.5s ease-out',
+            }}
+          >
             <Map
               ref={mapRef}
               mapboxAccessToken={MAPBOX_TOKEN}
-              initialViewState={{
-                latitude: 20,
-                longitude: 0,
-                zoom: 1.5,
-              }}
+              initialViewState={{ latitude: 20, longitude: 0, zoom: 1.5 }}
               style={{ width: '100%', height: '100%' }}
-              mapStyle="mapbox://styles/mapbox/light-v11"
+              mapStyle="mapbox://styles/mapbox/standard"
               projection={{ name: 'globe' }}
               attributionControl={false}
               dragPan={!!selectedId}
               scrollZoom={!!selectedId}
               doubleClickZoom={!!selectedId}
               touchZoomRotate={!!selectedId}
+              onLoad={(e) => {
+                const map = e.target
+                // Mapbox Standard is configured via root-style config properties,
+                // not paint overrides. Hero = label/POI-free; selected mode flips
+                // these on through the effect below.
+                try { map.setConfigProperty('basemap', 'lightPreset', 'day') } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'theme', 'default') } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'showPointOfInterestLabels', false) } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'showTransitLabels', false) } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'showPlaceLabels', false) } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'showRoadLabels', false) } catch { /* */ }
+                try { map.setConfigProperty('basemap', 'show3dObjects', false) } catch { /* */ }
+                // Apple-style atmosphere with a long, diffuse horizon so the
+                // blue glow fades into the page instead of stopping at the
+                // map's rectangle edge.
+                // Tight fog: short horizon-blend confines the blue to a thin
+                // halo right against the planet's edge; space outside is pure
+                // white so the rectangle seam disappears against the page.
+                map.setFog({
+                  'color': '#BCD9F0',
+                  'high-color': '#A8CFE8',
+                  'space-color': '#FFFFFF',
+                  'horizon-blend': 0.01,
+                  'star-intensity': 0,
+                })
+                setMapLoaded(true)
+              }}
             >
               {selectedId && (
                 <>
@@ -318,6 +401,7 @@ function App() {
               )}
             </Map>
           </div>
+
         </div>
       </main>
     </div>

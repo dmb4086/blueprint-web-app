@@ -1,0 +1,118 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]: Blueprint
+    - navigation [ref=e11]:
+      - link "Explore" [ref=e12] [cursor=pointer]:
+        - /url: "#"
+      - link "Sites" [ref=e13] [cursor=pointer]:
+        - /url: "#"
+      - link "Map" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e15]:
+      - button [ref=e16]:
+        - img [ref=e17]
+      - generic [ref=e20] [cursor=pointer]: JS
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Where is your plot?" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Blueprint maps what's around your land — roads, schools, and more.
+      - generic [ref=e27]:
+        - button "Select your country" [active] [ref=e28]:
+          - img [ref=e29]
+          - generic [ref=e32]: Select your country
+          - img [ref=e33]
+        - generic [ref=e42]:
+          - button "India" [ref=e43]:
+            - img [ref=e44]
+            - generic [ref=e51]: India
+          - button "United States" [ref=e52]:
+            - img [ref=e53]
+            - generic [ref=e58]: United States
+          - button "United Kingdom" [ref=e59]:
+            - img [ref=e60]
+            - generic [ref=e68]: United Kingdom
+          - button "Spain" [ref=e69]:
+            - img [ref=e70]
+            - generic [ref=e76]: Spain
+          - button "France" [ref=e77]:
+            - img [ref=e78]
+            - generic [ref=e82]: France
+          - button "Germany" [ref=e83]:
+            - img [ref=e84]
+            - generic [ref=e88]: Germany
+          - button "Italy" [ref=e89]:
+            - img [ref=e90]
+            - generic [ref=e94]: Italy
+          - button "Brazil" [ref=e95]:
+            - img [ref=e96]
+            - generic [ref=e101]: Brazil
+          - button "Japan" [ref=e102]:
+            - img [ref=e103]
+            - generic [ref=e106]: Japan
+          - button "Korea" [ref=e107]:
+            - img [ref=e108]
+            - generic [ref=e122]: Korea
+          - button "China" [ref=e123]:
+            - img [ref=e124]
+            - generic [ref=e132]: China
+          - button "Russia" [ref=e133]:
+            - img [ref=e134]
+            - generic [ref=e138]: Russia
+    - generic [ref=e35]:
+      - generic:
+        - generic:
+          - generic:
+            - heading "Where is your plot?" [level=1]
+            - paragraph: Blueprint maps what's around your land.
+            - generic:
+              - button "Select your country":
+                - img
+                - generic: Select your country
+                - img
+              - generic:
+                - button "India":
+                  - img
+                  - generic: India
+                - button "United States":
+                  - img
+                  - generic: United States
+                - button "United Kingdom":
+                  - img
+                  - generic: United Kingdom
+                - button "Spain":
+                  - img
+                  - generic: Spain
+                - button "France":
+                  - img
+                  - generic: France
+                - button "Germany":
+                  - img
+                  - generic: Germany
+                - button "Italy":
+                  - img
+                  - generic: Italy
+                - button "Brazil":
+                  - img
+                  - generic: Brazil
+                - button "Japan":
+                  - img
+                  - generic: Japan
+                - button "Korea":
+                  - img
+                  - generic: Korea
+                - button "China":
+                  - img
+                  - generic: China
+                - button "Russia":
+                  - img
+                  - generic: Russia
+      - generic [ref=e37]:
+        - region "Map" [ref=e39]
+        - generic:
+          - generic:
+            - generic:
+              - link "Mapbox homepage":
+                - /url: https://www.mapbox.com/

@@ -1,0 +1,63 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]: Blueprint
+    - navigation [ref=e11]:
+      - link "Explore" [ref=e12] [cursor=pointer]:
+        - /url: "#"
+      - link "Sites" [ref=e13] [cursor=pointer]:
+        - /url: "#"
+      - link "Map" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e15]:
+      - button [ref=e16]:
+        - img [ref=e17]
+      - generic [ref=e20] [cursor=pointer]: JS
+  - main [ref=e21]:
+    - generic:
+      - generic:
+        - heading "Where is your plot?" [level=1]
+        - paragraph: Blueprint maps what's around your land — roads, schools, and more.
+      - generic:
+        - generic:
+          - button "United States":
+            - img
+            - generic: United States
+            - img
+    - generic [ref=e35]:
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - heading "Where is your plot?" [level=1] [ref=e143]
+          - paragraph [ref=e144]: Blueprint maps what's around your land.
+          - button "United States" [ref=e146]:
+            - img [ref=e147]
+            - generic [ref=e152]: United States
+            - img [ref=e153]
+        - generic [ref=e155]:
+          - generic [ref=e156]: Address
+          - textbox "Street address..." [ref=e157]
+          - textbox "State / Province..." [ref=e158]
+          - button "Locate on Map" [ref=e159]:
+            - img [ref=e160]
+            - text: Locate on Map
+        - generic [ref=e163]:
+          - generic [ref=e164]: Or drop a Google Maps link
+          - textbox "https://maps.google.com/..." [ref=e165]
+          - button "Go to Location" [ref=e166]:
+            - img [ref=e167]
+            - text: Go to Location
+        - link "Open in Google Maps" [ref=e170] [cursor=pointer]:
+          - /url: https://www.google.com/maps/search/?api=1&query=37.0902,-95.7129
+          - img [ref=e171]
+          - text: Open in Google Maps
+      - generic [ref=e37]:
+        - generic:
+          - region "Map" [ref=e38]
+          - img "Map marker" [ref=e175]
+        - generic:
+          - generic [ref=e180]:
+            - button "Zoom in" [ref=e181] [cursor=pointer]
+            - button "Zoom out" [ref=e183] [cursor=pointer]
+          - link "Mapbox homepage" [ref=e40] [cursor=pointer]:
+            - /url: https://www.mapbox.com/
